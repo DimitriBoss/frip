@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import gsap from "gsap";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 type Category = "Tous" | "Homme" | "Femme";
 type Product = {
@@ -154,14 +155,65 @@ function BagIcon() {
   );
 }
 
-function ProductCard({ product, onOpen, onAddToCart, onBuy }: { product: Product; onOpen: () => void; onAddToCart: () => void; onBuy: () => void }) {
+function ProductCard({
+  product,
+  onOpen,
+  onAddToCart,
+  onBuy,
+}: {
+  product: Product;
+  onOpen: () => void;
+  onAddToCart: () => void;
+  onBuy: () => void;
+}) {
+  const cardRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    if (!cardRef.current) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const context = gsap.context(() => {
+      gsap.from(cardRef.current, {
+        opacity: 0,
+        y: reducedMotion ? 0 : 24,
+        duration: reducedMotion ? 0.24 : 0.65,
+        ease: "power3.out",
+      });
+    }, cardRef);
+
+    return () => context.revert();
+  }, []);
+
   return (
-    <article className="product-card">
-      <button className="product-image-wrap" onClick={onOpen} aria-label={`Ouvrir ${product.name}`}>
+    <article ref={cardRef} className="product-card">
+      <button
+        className="product-image-wrap"
+        onClick={onOpen}
+        aria-label={`Ouvrir ${product.name}`}
+      >
         <img src={product.image} alt={product.name} className="product-image" />
         <div className="card-actions">
-          <span className="card-cart" onClick={(event) => { event.stopPropagation(); onAddToCart(); }}>Ajouter au panier</span>
-          <span className="card-buy" onClick={(event) => { event.stopPropagation(); onBuy(); }}>Acheter</span>
+          <span
+            className="card-cart"
+            onClick={(event) => {
+              event.stopPropagation();
+              onAddToCart();
+            }}
+          >
+            Ajouter au panier
+          </span>
+          <span
+            className="card-buy"
+            onClick={(event) => {
+              event.stopPropagation();
+              onBuy();
+            }}
+          >
+            Acheter
+          </span>
         </div>
       </button>
       <h2>{product.name}</h2>
@@ -170,20 +222,128 @@ function ProductCard({ product, onOpen, onAddToCart, onBuy }: { product: Product
   );
 }
 
-function ProductModal({ product, gallery, selectedImage, onImageChange, onClose, onAddToCart }: { product: Product; gallery: string[]; selectedImage: number; onImageChange: (index: number) => void; onClose: () => void; onAddToCart: () => void }) {
+function ProductModal({
+  product,
+  gallery,
+  selectedImage,
+  onImageChange,
+  onClose,
+  onAddToCart,
+}: {
+  product: Product;
+  gallery: string[];
+  selectedImage: number;
+  onImageChange: (index: number) => void;
+  onClose: () => void;
+  onAddToCart: () => void;
+}) {
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const galleryImageRef = useRef<HTMLImageElement>(null);
+
+  useLayoutEffect(() => {
+    if (!backdropRef.current || !modalRef.current) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        backdropRef.current,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: reducedMotion ? 0.18 : 0.28,
+          ease: "power2.out",
+        },
+      );
+      gsap.fromTo(
+        modalRef.current,
+        {
+          opacity: 0,
+          y: reducedMotion ? 0 : 28,
+          scale: reducedMotion ? 1 : 0.98,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: reducedMotion ? 0.22 : 0.55,
+          ease: "power3.out",
+        },
+      );
+    }, backdropRef);
+
+    return () => context.revert();
+  }, []);
+
+  useEffect(() => {
+    if (!galleryImageRef.current) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    gsap.fromTo(
+      galleryImageRef.current,
+      { opacity: 0.35, scale: reducedMotion ? 1 : 1.025 },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: reducedMotion ? 0.2 : 0.4,
+        ease: "power2.out",
+      },
+    );
+  }, [selectedImage]);
+
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={product.name} onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onClose();
-    }}>
-      <div className="product-modal">
-        <button className="modal-close" onClick={onClose} aria-label="Fermer">×</button>
+    <div
+      ref={backdropRef}
+      className="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label={product.name}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div ref={modalRef} className="product-modal">
+        <button className="modal-close" onClick={onClose} aria-label="Fermer">
+          ×
+        </button>
 
         <div className="gallery-panel">
           <div className="gallery-main">
-            <img src={gallery[selectedImage]} alt={product.name} />
-            <button className="carousel-button previous" onClick={() => onImageChange((selectedImage - 1 + gallery.length) % gallery.length)} aria-label="Photo précédente">←</button>
-            <button className="carousel-button next" onClick={() => onImageChange((selectedImage + 1) % gallery.length)} aria-label="Photo suivante">→</button>
-            <span className="carousel-index">{String(selectedImage + 1).padStart(2, "0")} / {String(gallery.length).padStart(2, "0")}</span>
+            <img
+              ref={galleryImageRef}
+              src={gallery[selectedImage]}
+              alt={product.name}
+            />
+            <button
+              className="carousel-button previous"
+              onClick={() =>
+                onImageChange(
+                  (selectedImage - 1 + gallery.length) % gallery.length,
+                )
+              }
+              aria-label="Photo précédente"
+            >
+              ←
+            </button>
+            <button
+              className="carousel-button next"
+              onClick={() =>
+                onImageChange((selectedImage + 1) % gallery.length)
+              }
+              aria-label="Photo suivante"
+            >
+              →
+            </button>
+            <span className="carousel-index">
+              {String(selectedImage + 1).padStart(2, "0")} /{" "}
+              {String(gallery.length).padStart(2, "0")}
+            </span>
           </div>
 
           <div className="gallery-thumbnails">
@@ -203,42 +363,110 @@ function ProductModal({ product, gallery, selectedImage, onImageChange, onClose,
         <div className="product-detail">
           <p className="detail-kicker">Pièce unique · {product.category}</p>
           <h2>{product.name}</h2>
-          <p className="detail-price">{product.price.toLocaleString("fr-FR")} XOF</p>
-          <p className="detail-copy">Une pièce sélectionnée avec soin, disponible immédiatement. Chaque article est contrôlé avant son départ.</p>
+          <p className="detail-price">
+            {product.price.toLocaleString("fr-FR")} XOF
+          </p>
+          <p className="detail-copy">
+            Une pièce sélectionnée avec soin, disponible immédiatement. Chaque
+            article est contrôlé avant son départ.
+          </p>
 
           <div className="detail-actions">
-            <button className="action-primary" onClick={onAddToCart}>Ajouter au panier</button>
-            <button className="action-secondary" onClick={onAddToCart}>Commander</button>
+            <button className="action-primary" onClick={onAddToCart}>
+              Ajouter au panier
+            </button>
+            <button className="action-secondary" onClick={onAddToCart}>
+              Commander
+            </button>
           </div>
 
-          <p className="detail-note">Livraison et retrait disponibles selon votre zone.</p>
+          <p className="detail-note">
+            Livraison et retrait disponibles selon votre zone.
+          </p>
         </div>
       </div>
     </div>
   );
 }
 
-function CartPanel({ items, onClose }: { items: Product[]; onClose: () => void }) {
+function CartPanel({
+  items,
+  onClose,
+}: {
+  items: Product[];
+  onClose: () => void;
+}) {
   const total = items.reduce((sum, item) => sum + item.price, 0);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    if (!backdropRef.current || !panelRef.current) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        backdropRef.current,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: reducedMotion ? 0.18 : 0.25,
+          ease: "power2.out",
+        },
+      );
+      gsap.fromTo(
+        panelRef.current,
+        { x: reducedMotion ? 0 : 42, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: reducedMotion ? 0.22 : 0.5,
+          ease: "power3.out",
+        },
+      );
+    }, backdropRef);
+
+    return () => context.revert();
+  }, []);
 
   return (
-    <div className="cart-backdrop" role="dialog" aria-modal="true" aria-label="Votre panier" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onClose();
-    }}>
-      <aside className="cart-panel">
-        <button className="cart-close" onClick={onClose} aria-label="Fermer le panier">×</button>
+    <div
+      ref={backdropRef}
+      className="cart-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Votre panier"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <aside ref={panelRef} className="cart-panel">
+        <button
+          className="cart-close"
+          onClick={onClose}
+          aria-label="Fermer le panier"
+        >
+          ×
+        </button>
 
         <div className="cart-summary">
           <p className="detail-kicker">Votre sélection</p>
           <h2>Panier</h2>
-          <p className="cart-summary-copy">Vérifiez votre sélection avant de passer au paiement.</p>
+          <p className="cart-summary-copy">
+            Vérifiez votre sélection avant de passer au paiement.
+          </p>
 
           <div className="cart-total">
             <span>Total</span>
             <strong>{total.toLocaleString("fr-FR")} XOF</strong>
           </div>
 
-          <button className="checkout-button" disabled={!items.length}>Passer au paiement <span>→</span></button>
+          <button className="checkout-button" disabled={!items.length}>
+            Passer au paiement <span>→</span>
+          </button>
         </div>
 
         <div className="cart-items">
@@ -330,7 +558,11 @@ export default function Home() {
           Fripiz<span className="logo-ai">.ai</span>
         </a>
 
-        <button className="header-cart" onClick={() => setCartOpen(true)} aria-label={`Ouvrir le panier, ${cartItems.length} articles`}>
+        <button
+          className="header-cart"
+          onClick={() => setCartOpen(true)}
+          aria-label={`Ouvrir le panier, ${cartItems.length} articles`}
+        >
           <BagIcon />
           <span>Panier</span>
           <b>{cartItems.length}</b>
@@ -404,7 +636,9 @@ export default function Home() {
         </section>
 
         {filteredProducts.length === 0 && (
-          <p className="empty-state">Aucun article ne correspond à votre recherche.</p>
+          <p className="empty-state">
+            Aucun article ne correspond à votre recherche.
+          </p>
         )}
       </main>
 
@@ -422,8 +656,10 @@ export default function Home() {
         />
       )}
 
-      {cartOpen && <CartPanel items={cartItems} onClose={() => setCartOpen(false)} />}
-      {cartMessage && (
+      {cartOpen && (
+        <CartPanel items={cartItems} onClose={() => setCartOpen(false)} />
+      )}
+      {cartMessage && !cartOpen && (
         <button className="cart-toast" onClick={() => setCartMessage("")}>
           {cartMessage} <span>×</span>
         </button>

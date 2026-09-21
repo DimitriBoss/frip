@@ -79,7 +79,6 @@ button {
   letter-spacing: -0.07em;
 }
 
-
 .catalogue-toolbar {
   display: flex;
   align-items: center;
@@ -101,6 +100,13 @@ button {
   color: #242524;
   font-size: 14px;
   cursor: pointer;
+  transition:
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.category-tabs button:hover {
+  color: var(--muted);
 }
 
 .category-tabs button.selected::after {
@@ -130,7 +136,11 @@ button {
   border-radius: 22px;
   background: #fff;
   color: #565754;
-  transition: width 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  transition:
+    width 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 
 .search-field:focus-within {
@@ -141,9 +151,15 @@ button {
 }
 
 @keyframes search-focus {
-  0% { transform: scale(0.96); }
-  60% { transform: scale(1.03); }
-  100% { transform: scale(1) translateY(-1px); }
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1) translateY(-1px);
+  }
 }
 
 .search-icon {
@@ -203,6 +219,8 @@ button {
   border: 1px solid var(--line);
   background: #fff;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transform-origin: top right;
+  animation: menu-reveal 0.22s ease-out both;
 }
 
 .sort-menu button {
@@ -242,6 +260,14 @@ button {
   border: 0;
   width: 100%;
   cursor: pointer;
+  transition:
+    box-shadow 0.4s ease,
+    transform 0.4s ease;
+}
+
+.product-card:hover .product-image-wrap {
+  box-shadow: 0 16px 32px rgba(25, 26, 25, 0.12);
+  transform: translateY(-3px);
 }
 
 .product-image {
@@ -300,6 +326,14 @@ button {
   color: #fff;
   font-size: 10px;
   font-weight: 500;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.header-cart:hover b {
+  background: #444541;
+  transform: scale(1.12);
 }
 
 .product-image-wrap {
@@ -316,7 +350,9 @@ button {
   gap: 8px;
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .product-card:hover .card-actions,
@@ -334,6 +370,22 @@ button {
   border: 1px solid var(--ink);
   font-size: 10px;
   cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.card-actions span:hover {
+  transform: translateY(-2px);
+}
+
+.card-cart:hover {
+  background: #3e403e;
+}
+
+.card-buy:hover {
+  background: #fff;
 }
 
 .card-cart {
@@ -382,6 +434,15 @@ button {
   font-size: 25px;
   line-height: 1;
   cursor: pointer;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.modal-close:hover,
+.cart-close:hover {
+  background: #fff;
+  transform: rotate(90deg);
 }
 
 .gallery-panel {
@@ -420,6 +481,14 @@ button {
   font-size: 18px;
   transform: translateY(-50%);
   cursor: pointer;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.carousel-button:hover {
+  background: #fff;
+  transform: translateY(-50%) scale(1.08);
 }
 
 .carousel-button.previous {
@@ -458,6 +527,14 @@ button {
   overflow: hidden;
   cursor: pointer;
   opacity: 0.6;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.gallery-thumbnails button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .gallery-thumbnails button.selected {
@@ -511,9 +588,29 @@ button {
   border: 1px solid var(--ink);
   font-size: 12px;
   cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.detail-actions button:hover,
+.checkout-button:not(:disabled):hover {
+  box-shadow: 0 10px 22px rgba(25, 26, 25, 0.14);
+  transform: translateY(-2px);
 }
 
 .action-primary {
+  background: var(--ink);
+  color: #fff;
+}
+
+.action-primary:hover {
+  background: #3e403e;
+}
+
+.action-secondary:hover {
   background: var(--ink);
   color: #fff;
 }
@@ -795,6 +892,42 @@ button {
   margin: 30px 40px;
   color: var(--muted);
   font-size: 14px;
+}
+
+@keyframes menu-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cart-toast {
+  animation: toast-reveal 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
 }
 
 @media (max-width: 1050px) {
