@@ -227,7 +227,10 @@ function ProductCard({
           <span>Voir la pièce</span>
           <span>↗</span>
         </span>
-        <div className="card-actions" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="card-actions"
+          onClick={(event) => event.stopPropagation()}
+        >
           <button
             type="button"
             className="card-cart"
@@ -236,11 +239,7 @@ function ProductCard({
           >
             <span aria-hidden="true">+</span>
           </button>
-          <button
-            type="button"
-            className="card-buy"
-            onClick={onBuy}
-          >
+          <button type="button" className="card-buy" onClick={onBuy}>
             Acheter
             <span aria-hidden="true">↗</span>
           </button>
@@ -253,7 +252,9 @@ function ProductCard({
       <div className="card-meta">
         <div>
           <p className="card-eyebrow">
-            {product.stock === 1 ? "Pièce unique" : `${product.stock} exemplaires`}
+            {product.stock === 1
+              ? "Pièce unique"
+              : `${product.stock} exemplaires`}
           </p>
           <h2>{product.name}</h2>
         </div>
@@ -403,7 +404,10 @@ function ProductModal({
 
         <div className="product-detail">
           <p className="detail-kicker">
-            {product.stock === 1 ? "Pièce unique" : `${product.stock} exemplaires`} · {product.category}
+            {product.stock === 1
+              ? "Pièce unique"
+              : `${product.stock} exemplaires`}{" "}
+            · {product.category}
           </p>
           <h2>{product.name}</h2>
           <p className="detail-price">
