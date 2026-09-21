@@ -11,10 +11,20 @@ import {
 } from "react";
 
 type Category = "Tous" | "Homme" | "Femme";
+type ProductType =
+  | "Débardeur"
+  | "T-shirt"
+  | "Chemise"
+  | "Jean"
+  | "Ensemble"
+  | "Lunettes"
+  | "Baskets"
+  | "Veste";
 type Product = {
   id: number;
   name: string;
   category: Exclude<Category, "Tous">;
+  type: ProductType;
   price: number;
   stock: number;
   image: string;
@@ -26,6 +36,7 @@ const products: Product[] = [
     id: 1,
     name: "Débardeur noir classique",
     category: "Femme",
+    type: "Débardeur",
     price: 49000,
     stock: 1,
     image:
@@ -40,6 +51,7 @@ const products: Product[] = [
     id: 2,
     name: "T-shirt blanc essentiel",
     category: "Homme",
+    type: "T-shirt",
     price: 49000,
     stock: 2,
     image:
@@ -54,6 +66,7 @@ const products: Product[] = [
     id: 3,
     name: "T-shirts manches courtes",
     category: "Homme",
+    type: "T-shirt",
     price: 36000,
     stock: 3,
     image:
@@ -68,6 +81,7 @@ const products: Product[] = [
     id: 4,
     name: "T-shirt moderne",
     category: "Homme",
+    type: "T-shirt",
     price: 77000,
     stock: 4,
     image:
@@ -82,6 +96,7 @@ const products: Product[] = [
     id: 5,
     name: "Ensemble détente vintage",
     category: "Homme",
+    type: "Ensemble",
     price: 45000,
     stock: 2,
     image:
@@ -96,6 +111,7 @@ const products: Product[] = [
     id: 6,
     name: "Lunettes ovales années 90",
     category: "Femme",
+    type: "Lunettes",
     price: 28000,
     stock: 1,
     image:
@@ -110,6 +126,7 @@ const products: Product[] = [
     id: 7,
     name: "Baskets blanches rétro",
     category: "Homme",
+    type: "Baskets",
     price: 60000,
     stock: 3,
     image:
@@ -124,6 +141,7 @@ const products: Product[] = [
     id: 8,
     name: "Veste workwear écrue",
     category: "Femme",
+    type: "Veste",
     price: 72000,
     stock: 1,
     image:
@@ -566,6 +584,10 @@ export default function Home() {
   const [category, setCategory] = useState<Category>("Tous");
   const [search, setSearch] = useState("");
   const [sortOpen, setSortOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [sortClosing, setSortClosing] = useState(false);
+  const [filterClosing, setFilterClosing] = useState(false);
+  const [productType, setProductType] = useState<ProductType | "Tous">("Tous");
   const [sort, setSort] = useState("Recommandés");
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -575,6 +597,9 @@ export default function Home() {
   const [toastClosing, setToastClosing] = useState(false);
   const toastClosingRef = useRef(false);
   const toastExitTimeoutRef = useRef<number | null>(null);
+  const sortWrapRef = useRef<HTMLDivElement>(null);
+  const filterWrapRef = useRef<HTMLDivElement>(null);
+  const menuCloseTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const isOverlayOpen = Boolean(selectedProduct || cartOpen);
@@ -604,6 +629,52 @@ export default function Home() {
 
     return () => window.clearTimeout(timeout);
   }, [cartMessage, dismissToast]);
+
+  const closeSortMenu = useCallback(() => {
+    if (!sortOpen || sortClosing) return;
+
+    setSortClosing(true);
+    menuCloseTimeoutRef.current = window.setTimeout(() => {
+      setSortOpen(false);
+      setSortClosing(false);
+    }, 180);
+  }, [sortClosing, sortOpen]);
+
+  const closeFilterMenu = useCallback(() => {
+    if (!filterOpen || filterClosing) return;
+
+    setFilterClosing(true);
+    menuCloseTimeoutRef.current = window.setTimeout(() => {
+      setFilterOpen(false);
+      setFilterClosing(false);
+    }, 180);
+  }, [filterClosing, filterOpen]);
+
+  useEffect(() => {
+    const handleOutsidePointer = (event: PointerEvent) => {
+      const target = event.target as Node;
+
+      if (filterOpen && !filterWrapRef.current?.contains(target)) {
+        closeFilterMenu();
+      }
+
+      if (sortOpen && !sortWrapRef.current?.contains(target)) {
+        closeSortMenu();
+      }
+    };
+
+    document.addEventListener("pointerdown", handleOutsidePointer);
+
+    return () => document.removeEventListener("pointerdown", handleOutsidePointer);
+  }, [closeFilterMenu, closeSortMenu, filterOpen, sortOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (menuCloseTimeoutRef.current) {
+        window.clearTimeout(menuCloseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const showToast = (message: string) => {
     if (toastExitTimeoutRef.current) {
@@ -649,10 +720,12 @@ export default function Home() {
     const visible = products.filter((product) => {
       const matchesCategory =
         category === "Tous" || product.category === category;
+      const matchesType =
+        productType === "Tous" || product.type === productType;
       const matchesSearch =
         !normalizedSearch ||
         product.name.toLocaleLowerCase("fr-FR").includes(normalizedSearch);
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesType && matchesSearch;
     });
 
     return [...visible].sort((a, b) =>
@@ -662,13 +735,13 @@ export default function Home() {
           ? b.price - a.price
           : a.id - b.id,
     );
-  }, [category, search, sort]);
+  }, [category, productType, search, sort]);
 
   return (
     <div className="site-frame">
       <header className="site-header">
-        <a className="logo" href="#catalogue" aria-label="Fripiz.ai, accueil">
-          Fripiz<span className="logo-ai">.ai</span>
+        <a className="logo" href="#catalogue" aria-label="Fripiz, accueil">
+          Fripiz
         </a>
 
         <button
@@ -707,23 +780,118 @@ export default function Home() {
               />
             </label>
 
-            <div className="sort-wrap">
+            <div ref={filterWrapRef} className="sort-wrap">
               <button
-                className="pill-button"
-                onClick={() => setSortOpen((open) => !open)}
+                className={`pill-button${productType !== "Tous" ? " active" : ""}`}
+                onClick={() => {
+                  if (filterOpen) {
+                    closeFilterMenu();
+                    return;
+                  }
+
+                  setSortOpen(false);
+                  setSortClosing(false);
+                  setFilterClosing(false);
+                  setFilterOpen(true);
+                }}
+                aria-expanded={filterOpen}
               >
-                Trier par <span className="sort-icon">↓</span>
+                Filtrer{productType !== "Tous" ? ` · ${productType}` : ""}
+                {productType !== "Tous" && (
+                  <span
+                    className="control-clear"
+                    role="button"
+                    tabIndex={0}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setProductType("Tous");
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setProductType("Tous");
+                      }
+                    }}
+                    aria-label="Retirer le filtre actif"
+                  >
+                    ×
+                  </span>
+                )}
+                <span className="sort-icon">↓</span>
+              </button>
+
+              {filterOpen && (
+                <div className={`sort-menu filter-menu${filterClosing ? " is-closing" : ""}`}>
+                  {(["Tous", "Débardeur", "T-shirt", "Chemise", "Jean", "Ensemble", "Lunettes", "Baskets", "Veste"] as const).map(
+                    (option) => (
+                      <button
+                        key={option}
+                        className={productType === option ? "selected" : ""}
+                        onClick={() => {
+                          setProductType(option);
+                          closeFilterMenu();
+                        }}
+                      >
+                        {option === "Tous" ? "Tous les types" : option}
+                      </button>
+                    ),
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div ref={sortWrapRef} className="sort-wrap">
+              <button
+                className={`pill-button${sort !== "Recommandés" ? " active" : ""}`}
+                onClick={() => {
+                  if (sortOpen) {
+                    closeSortMenu();
+                    return;
+                  }
+
+                  setFilterOpen(false);
+                  setFilterClosing(false);
+                  setSortClosing(false);
+                  setSortOpen(true);
+                }}
+                aria-expanded={sortOpen}
+              >
+                Trier par{sort !== "Recommandés" ? ` · ${sort}` : ""}{" "}
+                {sort !== "Recommandés" && (
+                  <span
+                    className="control-clear"
+                    role="button"
+                    tabIndex={0}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSort("Recommandés");
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setSort("Recommandés");
+                      }
+                    }}
+                    aria-label="Réinitialiser le tri actif"
+                  >
+                    ×
+                  </span>
+                )}
+                <span className="sort-icon">↓</span>
               </button>
 
               {sortOpen && (
-                <div className="sort-menu">
+                <div className={`sort-menu${sortClosing ? " is-closing" : ""}`}>
                   {["Recommandés", "Prix croissant", "Prix décroissant"].map(
                     (option) => (
                       <button
                         key={option}
+                        className={sort === option ? "selected" : ""}
                         onClick={() => {
                           setSort(option);
-                          setSortOpen(false);
+                          closeSortMenu();
                         }}
                       >
                         {option}

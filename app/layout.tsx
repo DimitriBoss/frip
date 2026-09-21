@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fripiz.ai | Boutique vintage",
+  title: "Fripiz | Boutique vintage",
   description: "Une sélection de vêtements vintage et essentiels intemporels.",
 };
 

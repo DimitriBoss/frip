@@ -202,12 +202,46 @@ button {
   background: #ecece8;
 }
 
+.pill-button.active {
+  background: var(--ink);
+  color: #fff;
+}
+
 .sort-icon {
   font-size: 14px;
 }
 
 .sort-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.control-clear {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  margin-left: 1px;
+  padding: 0;
+  border: 1px solid rgba(25, 26, 25, 0.18);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.pill-button .control-clear {
+  margin-right: -2px;
+}
+
+.control-clear:hover {
+  transform: rotate(90deg);
 }
 
 .sort-menu {
@@ -227,6 +261,7 @@ button {
 .sort-menu button {
   display: block;
   width: 100%;
+  position: relative;
   padding: 9px 10px;
   border: 0;
   background: none;
@@ -238,6 +273,27 @@ button {
 
 .sort-menu button:hover {
   background: #f3f3f0;
+}
+
+.sort-menu button.selected {
+  background: #ecece8;
+  font-weight: 600;
+}
+
+.sort-menu button.selected::after {
+  position: absolute;
+  right: 10px;
+  content: "✓";
+  font-size: 11px;
+}
+
+.sort-menu.is-closing {
+  animation: menu-dismiss 0.18s ease-in both;
+  pointer-events: none;
+}
+
+.filter-menu {
+  width: 170px;
 }
 
 .product-grid {
@@ -1179,6 +1235,18 @@ button {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes menu-dismiss {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.97);
   }
 }
 
