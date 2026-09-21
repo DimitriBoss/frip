@@ -665,7 +665,8 @@ export default function Home() {
 
     document.addEventListener("pointerdown", handleOutsidePointer);
 
-    return () => document.removeEventListener("pointerdown", handleOutsidePointer);
+    return () =>
+      document.removeEventListener("pointerdown", handleOutsidePointer);
   }, [closeFilterMenu, closeSortMenu, filterOpen, sortOpen]);
 
   useEffect(() => {
@@ -822,21 +823,33 @@ export default function Home() {
               </button>
 
               {filterOpen && (
-                <div className={`sort-menu filter-menu${filterClosing ? " is-closing" : ""}`}>
-                  {(["Tous", "Débardeur", "T-shirt", "Chemise", "Jean", "Ensemble", "Lunettes", "Baskets", "Veste"] as const).map(
-                    (option) => (
-                      <button
-                        key={option}
-                        className={productType === option ? "selected" : ""}
-                        onClick={() => {
-                          setProductType(option);
-                          closeFilterMenu();
-                        }}
-                      >
-                        {option === "Tous" ? "Tous les types" : option}
-                      </button>
-                    ),
-                  )}
+                <div
+                  className={`sort-menu filter-menu${filterClosing ? " is-closing" : ""}`}
+                >
+                  {(
+                    [
+                      "Tous",
+                      "Débardeur",
+                      "T-shirt",
+                      "Chemise",
+                      "Jean",
+                      "Ensemble",
+                      "Lunettes",
+                      "Baskets",
+                      "Veste",
+                    ] as const
+                  ).map((option) => (
+                    <button
+                      key={option}
+                      className={productType === option ? "selected" : ""}
+                      onClick={() => {
+                        setProductType(option);
+                        closeFilterMenu();
+                      }}
+                    >
+                      {option === "Tous" ? "Tous les types" : option}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

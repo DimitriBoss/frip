@@ -233,7 +233,10 @@ button {
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .pill-button .control-clear {
