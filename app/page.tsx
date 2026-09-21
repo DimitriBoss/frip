@@ -1,7 +1,14 @@
 "use client";
 
 import gsap from "gsap";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 type Category = "Tous" | "Homme" | "Femme";
 type Product = {
@@ -9,6 +16,7 @@ type Product = {
   name: string;
   category: Exclude<Category, "Tous">;
   price: number;
+  stock: number;
   image: string;
   gallery: string[];
 };
@@ -19,6 +27,7 @@ const products: Product[] = [
     name: "Débardeur noir classique",
     category: "Femme",
     price: 49000,
+    stock: 1,
     image:
       "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -32,6 +41,7 @@ const products: Product[] = [
     name: "T-shirt blanc essentiel",
     category: "Homme",
     price: 49000,
+    stock: 2,
     image:
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -45,6 +55,7 @@ const products: Product[] = [
     name: "T-shirts manches courtes",
     category: "Homme",
     price: 36000,
+    stock: 3,
     image:
       "https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -58,6 +69,7 @@ const products: Product[] = [
     name: "T-shirt moderne",
     category: "Homme",
     price: 77000,
+    stock: 4,
     image:
       "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -71,6 +83,7 @@ const products: Product[] = [
     name: "Ensemble détente vintage",
     category: "Homme",
     price: 45000,
+    stock: 2,
     image:
       "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -84,6 +97,7 @@ const products: Product[] = [
     name: "Lunettes ovales années 90",
     category: "Femme",
     price: 28000,
+    stock: 1,
     image:
       "https://images.unsplash.com/photo-1509695507497-903c140c43b0?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -97,6 +111,7 @@ const products: Product[] = [
     name: "Baskets blanches rétro",
     category: "Homme",
     price: 60000,
+    stock: 3,
     image:
       "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -110,6 +125,7 @@ const products: Product[] = [
     name: "Veste workwear écrue",
     category: "Femme",
     price: 72000,
+    stock: 1,
     image:
       "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=900&q=85",
     gallery: [
@@ -163,7 +179,7 @@ function ProductCard({
 }: {
   product: Product;
   onOpen: () => void;
-  onAddToCart: () => void;
+  onAddToCart: () => boolean;
   onBuy: () => void;
 }) {
   const cardRef = useRef<HTMLElement>(null);
@@ -189,35 +205,60 @@ function ProductCard({
 
   return (
     <article ref={cardRef} className="product-card">
-      <button
+      <div
         className="product-image-wrap"
         onClick={onOpen}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onOpen();
+          }
+        }}
+        role="button"
+        tabIndex={0}
         aria-label={`Ouvrir ${product.name}`}
       >
+        <span className="card-topline" aria-hidden="true">
+          <span className="card-category">{product.category}</span>
+        </span>
         <img src={product.image} alt={product.name} className="product-image" />
-        <div className="card-actions">
-          <span
+        <span className="card-image-shade" aria-hidden="true" />
+        <span className="card-open-label" aria-hidden="true">
+          <span>Voir la pièce</span>
+          <span>↗</span>
+        </span>
+        <div className="card-actions" onClick={(event) => event.stopPropagation()}>
+          <button
+            type="button"
             className="card-cart"
-            onClick={(event) => {
-              event.stopPropagation();
-              onAddToCart();
-            }}
+            onClick={onAddToCart}
+            aria-label={`Ajouter ${product.name} au panier`}
           >
-            Ajouter au panier
-          </span>
-          <span
+            <span aria-hidden="true">+</span>
+          </button>
+          <button
+            type="button"
             className="card-buy"
-            onClick={(event) => {
-              event.stopPropagation();
-              onBuy();
-            }}
+            onClick={onBuy}
           >
             Acheter
-          </span>
+            <span aria-hidden="true">↗</span>
+          </button>
         </div>
-      </button>
-      <h2>{product.name}</h2>
-      <p className="price">{product.price.toLocaleString("fr-FR")} XOF</p>
+      </div>
+      <span className="card-frame" aria-hidden="true">
+        <span className="frame-corner frame-corner-top" />
+        <span className="frame-corner frame-corner-bottom" />
+      </span>
+      <div className="card-meta">
+        <div>
+          <p className="card-eyebrow">
+            {product.stock === 1 ? "Pièce unique" : `${product.stock} exemplaires`}
+          </p>
+          <h2>{product.name}</h2>
+        </div>
+        <p className="price">{product.price.toLocaleString("fr-FR")} XOF</p>
+      </div>
     </article>
   );
 }
@@ -235,7 +276,7 @@ function ProductModal({
   selectedImage: number;
   onImageChange: (index: number) => void;
   onClose: () => void;
-  onAddToCart: () => void;
+  onAddToCart: () => boolean;
 }) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -361,7 +402,9 @@ function ProductModal({
         </div>
 
         <div className="product-detail">
-          <p className="detail-kicker">Pièce unique · {product.category}</p>
+          <p className="detail-kicker">
+            {product.stock === 1 ? "Pièce unique" : `${product.stock} exemplaires`} · {product.category}
+          </p>
           <h2>{product.name}</h2>
           <p className="detail-price">
             {product.price.toLocaleString("fr-FR")} XOF
@@ -372,10 +415,20 @@ function ProductModal({
           </p>
 
           <div className="detail-actions">
-            <button className="action-primary" onClick={onAddToCart}>
+            <button
+              className="action-primary"
+              onClick={() => {
+                if (onAddToCart()) onClose();
+              }}
+            >
               Ajouter au panier
             </button>
-            <button className="action-secondary" onClick={onAddToCart}>
+            <button
+              className="action-secondary"
+              onClick={() => {
+                if (onAddToCart()) onClose();
+              }}
+            >
               Commander
             </button>
           </div>
@@ -392,9 +445,11 @@ function ProductModal({
 function CartPanel({
   items,
   onClose,
+  onRemove,
 }: {
   items: Product[];
   onClose: () => void;
+  onRemove: (index: number) => void;
 }) {
   const total = items.reduce((sum, item) => sum + item.price, 0);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -484,6 +539,14 @@ function CartPanel({
                   <small>Pièce unique</small>
                   <span>{item.price.toLocaleString("fr-FR")} XOF</span>
                 </div>
+                <button
+                  type="button"
+                  className="cart-remove"
+                  onClick={() => onRemove(index)}
+                  aria-label={`Retirer ${item.name} du panier`}
+                >
+                  ×
+                </button>
               </article>
             ))
           ) : (
@@ -505,6 +568,9 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [cartMessage, setCartMessage] = useState("");
+  const [toastClosing, setToastClosing] = useState(false);
+  const toastClosingRef = useRef(false);
+  const toastExitTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const isOverlayOpen = Boolean(selectedProduct || cartOpen);
@@ -515,15 +581,58 @@ export default function Home() {
     };
   }, [selectedProduct, cartOpen]);
 
+  const dismissToast = useCallback(() => {
+    if (toastClosingRef.current) return;
+
+    toastClosingRef.current = true;
+    setToastClosing(true);
+    toastExitTimeoutRef.current = window.setTimeout(() => {
+      setCartMessage("");
+      setToastClosing(false);
+      toastClosingRef.current = false;
+    }, 360);
+  }, []);
+
+  useEffect(() => {
+    if (!cartMessage) return;
+
+    const timeout = window.setTimeout(dismissToast, 4640);
+
+    return () => window.clearTimeout(timeout);
+  }, [cartMessage, dismissToast]);
+
+  const showToast = (message: string) => {
+    if (toastExitTimeoutRef.current) {
+      window.clearTimeout(toastExitTimeoutRef.current);
+    }
+
+    toastClosingRef.current = false;
+    setToastClosing(false);
+    setCartMessage(message);
+  };
+
+  const getProductQuantity = (product: Product) =>
+    cartItems.filter((item) => item.id === product.id).length;
+
   const addToCart = (product: Product) => {
+    const quantityInCart = getProductQuantity(product);
+
+    if (quantityInCart >= product.stock) {
+      showToast(
+        product.stock === 1
+          ? `${product.name} est une pièce unique et est déjà dans votre panier.`
+          : `Stock épuisé : seulement ${product.stock} exemplaires disponibles pour ${product.name}.`,
+      );
+      return false;
+    }
+
     setCartItems((items) => [...items, product]);
-    setCartMessage("Article ajouté au panier");
+    showToast("Article ajouté au panier");
+    return true;
   };
 
   const handleBuy = (product: Product) => {
-    setCartItems((items) => [...items, product]);
-    setCartOpen(true);
-    setCartMessage("Article ajouté au panier");
+    if (addToCart(product)) setCartOpen(true);
   };
 
   const openProduct = (product: Product) => {
@@ -649,18 +758,26 @@ export default function Home() {
           selectedImage={selectedImage}
           onImageChange={setSelectedImage}
           onClose={() => setSelectedProduct(null)}
-          onAddToCart={() => {
-            addToCart(selectedProduct);
-            setSelectedProduct(null);
-          }}
+          onAddToCart={() => addToCart(selectedProduct)}
         />
       )}
 
       {cartOpen && (
-        <CartPanel items={cartItems} onClose={() => setCartOpen(false)} />
+        <CartPanel
+          items={cartItems}
+          onClose={() => setCartOpen(false)}
+          onRemove={(index) => {
+            setCartItems((items) =>
+              items.filter((_, itemIndex) => itemIndex !== index),
+            );
+          }}
+        />
       )}
       {cartMessage && !cartOpen && (
-        <button className="cart-toast" onClick={() => setCartMessage("")}>
+        <button
+          className={`cart-toast${toastClosing ? " is-closing" : ""}`}
+          onClick={dismissToast}
+        >
           {cartMessage} <span>×</span>
         </button>
       )}
