@@ -1,5 +1,53 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("./font/PPNeueMontreal-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("./font/PPNeueMontreal-Medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kamerik 205";
+  src: url("./font/Kamerik205-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kamerik 205";
+  src: url("./font/Kamerik205-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Akkurat Mono";
+  src: url("./font/AkkuratMonoLLWeb-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Freig Big Pro";
+  src: url("./font/FreigBigProLigIta.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+}
+
 :root {
   --ink: #191a19;
   --paper: #f6f6f4;
@@ -23,7 +71,7 @@ body {
   min-height: 100%;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: "PP Neue Montreal", var(--font-geist-sans), Arial, sans-serif;
 }
 
 html {
@@ -53,7 +101,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 88px;
+  min-height: 118px;
   padding: 0 40px;
   border-bottom: 1px solid var(--line);
   background: rgba(246, 246, 244, 0.94);
@@ -65,11 +113,21 @@ button {
   align-items: baseline;
   gap: 0;
   color: var(--ink);
-  font-size: 35px;
-  font-weight: 650;
-  letter-spacing: -0.085em;
+  font-family: "Kamerik 205", "PP Neue Montreal", sans-serif;
+  font-size: clamp(52px, 7vw, 88px);
+  font-weight: 700;
+  letter-spacing: 0.015em;
   line-height: 1;
   text-decoration: none;
+  text-transform: lowercase;
+  transition:
+    letter-spacing 0.4s ease,
+    transform 0.4s ease;
+}
+
+.logo:hover {
+  letter-spacing: 0.035em;
+  transform: scaleX(1.015);
 }
 
 .logo-ai {
@@ -99,7 +157,10 @@ button {
   border: 0;
   background: none;
   color: #242524;
-  font-size: 14px;
+  font-family: "Akkurat Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     color 0.25s ease,
@@ -176,11 +237,14 @@ button {
   outline: 0;
   background: transparent;
   color: var(--ink);
+  font-family: "PP Neue Montreal", sans-serif;
   font-size: 12px;
+  letter-spacing: 0.01em;
 }
 
 .search-field input::placeholder {
   color: #979894;
+  font-family: "PP Neue Montreal", sans-serif;
 }
 
 .pill-button {
@@ -193,7 +257,10 @@ button {
   border-radius: 22px;
   background: #fff;
   color: #30312f;
-  font-size: 13px;
+  font-family: "Akkurat Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -269,7 +336,8 @@ button {
   border: 0;
   background: none;
   color: var(--ink);
-  font-size: 11px;
+  font-family: "Akkurat Mono", monospace;
+  font-size: 10px;
   text-align: left;
   cursor: pointer;
 }
@@ -422,8 +490,7 @@ button {
   transform: scale(1.06);
 }
 
-.card-topline,
-.card-open-label {
+.card-topline {
   position: absolute;
   z-index: 2;
   right: 16px;
@@ -465,32 +532,6 @@ button {
   opacity: 0.9;
 }
 
-.card-open-label {
-  bottom: 62px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
-}
-
-.card-open-label span:last-child {
-  display: grid;
-  place-items: center;
-  width: 27px;
-  height: 27px;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  border-radius: 50%;
-  font-size: 15px;
-  letter-spacing: 0;
-}
-
-.product-card:hover .card-open-label,
-.product-card:focus-within .card-open-label {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 .card-meta {
   display: flex;
   align-items: flex-start;
@@ -502,6 +543,7 @@ button {
 .card-eyebrow {
   margin: 0 0 6px;
   color: var(--muted);
+  font-family: "Akkurat Mono", monospace;
   font-size: 9px;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -511,16 +553,19 @@ button {
   max-width: 190px;
   margin: 0;
   color: #1b1c1b;
-  font-size: 14px;
-  font-weight: 450;
-  line-height: 1.2;
+  font-family: "Kamerik 205", "PP Neue Montreal", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.035em;
+  line-height: 1.18;
 }
 
 .price {
   flex: 0 0 auto;
   margin: 17px 0 0;
   color: #1e201e;
-  font-size: 11px;
+  font-family: "Akkurat Mono", monospace;
+  font-size: 10px;
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -535,7 +580,11 @@ button {
   border: 0;
   background: none;
   color: var(--ink);
+  font-family: "Kamerik 205", "PP Neue Montreal", sans-serif;
   font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -597,7 +646,7 @@ button {
 }
 
 .card-cart,
-.card-buy {
+.card-actions button.card-buy {
   border: 0;
   transition:
     background 0.3s ease,
@@ -646,7 +695,7 @@ button {
   transform: rotate(-8deg);
 }
 
-.card-buy {
+.card-actions button.card-buy {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -655,7 +704,9 @@ button {
   border-bottom: 1px solid rgba(255, 255, 255, 0.78);
   background: transparent;
   color: #fff;
+  font-family: "Kamerik 205", "PP Neue Montreal", sans-serif;
   font-size: 10px;
+  font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -854,23 +905,28 @@ button {
 .product-detail h2 {
   margin: 0;
   color: var(--ink);
-  font-size: clamp(24px, 3vw, 38px);
-  font-weight: 500;
-  letter-spacing: -0.06em;
-  line-height: 1.05;
+  font-family: "Kamerik 205", "PP Neue Montreal", sans-serif;
+  font-size: clamp(30px, 4vw, 54px);
+  font-weight: 700;
+  letter-spacing: -0.075em;
+  line-height: 0.98;
 }
 
 .detail-price {
   margin: 18px 0 0;
-  font-size: 17px;
+  font-family: "Akkurat Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
 .detail-copy {
   max-width: 320px;
   margin: 26px 0 0;
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.7;
+  font-family: "Freig Big Pro", Georgia, serif;
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.18;
 }
 
 .detail-actions {
@@ -1031,6 +1087,7 @@ button {
 .detail-kicker {
   margin: 0 0 18px;
   color: var(--muted);
+  font-family: "Akkurat Mono", monospace;
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1038,8 +1095,9 @@ button {
 
 .cart-summary h2 {
   margin: 0;
+  font-family: "Kamerik 205", "PP Neue Montreal", sans-serif;
   font-size: clamp(30px, 4vw, 48px);
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: -0.07em;
   line-height: 0.98;
 }
@@ -1048,8 +1106,10 @@ button {
   max-width: 240px;
   margin: 21px 0 0;
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.6;
+  font-family: "Freig Big Pro", Georgia, serif;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.2;
 }
 
 .cart-total {
@@ -1084,7 +1144,6 @@ button {
 }
 
 .checkout-button:disabled {
-  cursor: not-allowed;
   opacity: 0.4;
 }
 
@@ -1100,6 +1159,7 @@ button {
   display: flex;
   justify-content: space-between;
   padding-bottom: 16px;
+  font-family: "Akkurat Mono", monospace;
   border-bottom: 1px solid var(--line);
   color: var(--muted);
   font-size: 11px;
@@ -1358,7 +1418,7 @@ button {
   .cart-summary-copy {
     max-width: none;
     margin-top: 0;
-    font-size: 11px;
+    font-size: 16px;
   }
 
   .cart-total {
@@ -1428,7 +1488,7 @@ button {
   }
 
   .logo {
-    font-size: 26px;
+    font-size: 44px;
   }
 
   .logo-ai {
@@ -1530,18 +1590,13 @@ button {
     aspect-ratio: 4 / 5;
   }
 
-  .card-topline,
-  .card-open-label {
+  .card-topline {
     right: 10px;
     left: 10px;
   }
 
   .card-topline {
     top: 11px;
-  }
-
-  .card-open-label {
-    bottom: 55px;
   }
 
   .card-actions {

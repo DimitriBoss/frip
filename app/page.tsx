@@ -241,10 +241,6 @@ function ProductCard({
         </span>
         <img src={product.image} alt={product.name} className="product-image" />
         <span className="card-image-shade" aria-hidden="true" />
-        <span className="card-open-label" aria-hidden="true">
-          <span>Voir la pièce</span>
-          <span>↗</span>
-        </span>
         <div
           className="card-actions"
           onClick={(event) => event.stopPropagation()}
